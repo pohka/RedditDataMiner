@@ -1,6 +1,8 @@
 //convert a downloaded json file to an sql database
 $(document).on("click", "#parse", function(){
   let dataFile = "/data/" + $("#input").val() + ".json";
+  $("#num_comments").text(0);
+  $("#num_posts").text(0);
   loadData(dataFile);
 });
 
@@ -30,6 +32,10 @@ function sendToDatabase(json){
     for(let i in comments[key]){
       sendCommentToDatabase(comments[key][i], key, null);
     }
+  }
+  let posts = json["posts"];
+  for(let key in posts){
+    sendPostToDatabase(posts[key], key)
   }
 }
 
@@ -72,11 +78,46 @@ function sendCommentToDatabase(data, postID, parent){
     type: "POST",
     data : sending,
     success: function(result){
-      $()
       for(let i in data["replies"]){
         $("#num_comments").text(Number($("#num_comments").text())+1);
         sendCommentToDatabase(data["replies"][i], postID, sending["commend_id"]);
       }
+    }
+  });
+}
+
+//send a post to the database
+function sendPostToDatabase(data){
+  let sending = {
+    type : "post",
+    post_id : data["id"],
+    author : data["author"],
+    brief_text : data["brief_text"],
+    domain : data["domain"],
+    flair : data["flair"],
+    gold : data["gold"],
+    is_video : data["is_video"],
+    nsfw : data["nsfw"],
+    num_comments : data["num_comments"],
+    permalink : data["permalink"],
+    score : data["score"],
+    spoiler : data["spoiler"],
+    text : data["text"],
+    time : data["time"],
+    title : data["title"],
+    upvote_ratio : data["upvote_ratio"],
+    url : data["url"],
+  }
+
+  sending["is_video"] = toIntBool(sending["is_video"]);
+  sending["spoiler"] = toIntBool(sending["spoiler"]);
+
+  $.ajax({
+    url: "/php/populateDatabase.php",
+    type: "POST",
+    data : sending,
+    success: function(result){
+      $("#num_posts").text(Number($("#num_posts").text())+1);
     }
   });
 }
@@ -88,4 +129,10 @@ function genUID() {
     firstPart = ("000" + firstPart.toString(36)).slice(-3);
     secondPart = ("000" + secondPart.toString(36)).slice(-3);
     return firstPart + secondPart;
+}
+
+//converts a boolean string to an int boolean
+function toIntBool(str){
+  if(str === "true") return 1;
+  return 0;
 }

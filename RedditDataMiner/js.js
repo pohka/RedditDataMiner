@@ -4,20 +4,17 @@
 */
 var subreddit = "DotA2"; //set subreddit
 var filter = "hot"; //filter (hot/new/rising/top/controversial/guilded)
+const maxPages = 4;
 var postsInfo = {};
 var commentsInfo = {};
 var update;
+var page = "https://www.reddit.com/r/" + subreddit + "/" + filter + "/.json";
+var pageCount = 1;
 $(document).ready(onload);
 
 //called when page has loaded
 function onload(){
-  let page = "https://www.reddit.com/r/" + subreddit + "/" + filter + "/.json";
   loadJson(page);
-  let maxPages = 4;
-  for(let i=1; i<maxPages; i++){
-   loadJson(page + "?count=" + (i*25) + "&after=t3_7m6wr2");
-  }
-
   $("#url").text("r/"+subreddit+"/" + filter);
   var tickTime = 100;
   update = setInterval(function(){
@@ -26,8 +23,18 @@ function onload(){
   }, tickTime);
 }
 
+//requests the next page
+function requestPage(lastPost){
+    if(pageCount < maxPages){
+      var url = page + "?count=" + (pageCount*25) + "&after=t3_" + lastPost;
+      pageCount+=1;
+      loadJson(url);
+    }
+}
+
 //parses each page on reddit
 function loadJson(url){
+  //console.log("Requesting Page: "+ url);
   $.ajax({
     dataType: "json",
     url: url,
@@ -43,11 +50,9 @@ function loadJson(url){
           time : post["created_utc"],
           gold : post["gilded"],
           flair : post["link_flair_css_class"],
-          is_self : post["is_self"],
           is_video : post["is_video"],
           nsfw : post["over_18"],
           permalink : "https://www.reddit.com" + post["permalink"],
-          pinned : post["pinned"],
           author : post["author"],
           spoiler : post["spoiler"],
           url : post["url"],
@@ -56,17 +61,26 @@ function loadJson(url){
           domain : post["domain"],
         }
         postsInfo[post["id"]] = info;
+
+        //next page
+        if(i == posts.length -1){
+          requestPage(post["id"]);
+        }
       }
 
       for(let i in postsInfo){
         readPost(postsInfo[i]["permalink"]);
       }
+    },
+    error: function(data){
+      console.log("failed" + data);
     }
   });
 }
 
 //parses a post
 function readPost(url){
+  console.log("Requesting Post: "+ url);
   $.ajax({
     dataType: "json",
     url: url+".json",
@@ -118,6 +132,7 @@ $(document).ajaxStop(function() {
     posts : postsInfo,
     comments : commentsInfo,
   }
+  console.log("finished");
   saveJSON(obj, subreddit.toLowerCase()+"-"+filter+"-"+Date.now()+".json");
 });
 

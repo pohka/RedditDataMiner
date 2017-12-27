@@ -10,13 +10,16 @@
 
   $sql = "";
   if($type == "comment"){
-    $sql = insertComment($con);
+    $sql = insertComment();
+  }
+  else if($type == "post"){
+    $sql = insertPost();
   }
 
   mysqli_query($con, $sql);
   mysqli_close($con);
 
-  function insertComment($con){
+  function insertComment(){
     $comment_id = $_POST["comment_id"];
     $post_id = $_POST["post_id"];
     $parent_comment = NULL;
@@ -42,6 +45,39 @@
         "('{$comment_id}', '{$post_id}', '{$parent_comment}', ".
         "'{$author}', '{$author_flair}', '{$text}', '{$time}', '{$depth}', ".
         "'{$gold}', '{$score}', '{$num_replies}') ";
+    return $sql;
+  }
+
+  function insertPost(){
+    $post_id = $_POST["post_id"];
+    $author = $_POST["author"];
+    $brief_text = $_POST["brief_text"];
+    $domain = $_POST["domain"];
+    $flair = $_POST["flair"];
+    $gold = $_POST["gold"];
+    $is_video = $_POST["is_video"];
+    $nsfw = $_POST["nsfw"];
+    $num_comments = $_POST["num_comments"];
+    $permalink = $_POST["permalink"];
+    $score = $_POST["score"];
+    $spoiler = $_POST["spoiler"];
+    $text = $_POST["text"];
+    $time = $_POST["time"];
+    $title = $_POST["title"];
+    $upvote_ratio = $_POST["upvote_ratio"];
+    $url = $_POST["url"];
+
+    $sql =
+      "REPLACE INTO `posts` ".
+        "(`post_id`, `author`, `brief_text`, `domain`, `flair`, ".
+        "`gold`, `is_video`, `nsfw`, `num_comments`, ".
+        "`permalink`, `score`, `spolier`, `text`, ".
+        "`time`, `title`, `upvote_ratio`, `url`) ".
+      "VALUES (".
+        "'{$post_id}', '{$author}', '{$brief_text}', '{$domain}', '{$flair}', ".
+        "'{$gold}', '{$is_video}', '{$nsfw}', '{$num_comments}', ".
+        "'{$permalink}', '{$score}', '{$spoiler}', '{$text}', ".
+        "'{$time}', '{$title}', '{$upvote_ratio}', '{$url}')";
     return $sql;
   }
  ?>
