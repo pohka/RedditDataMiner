@@ -1,0 +1,13 @@
+//total karma for comments
+$sql = "SELECT SUM(score) from comments";
+
+//user flair with highest avg comment karama
+$sql = "SELECT AVG(comments.score), author_flairs.name FROM comments JOIN author_flairs on author_flairs.flairs_class = comments.author_flair group by author_flair ORDER BY AVG(comments.score) DESC";
+
+//avg num replies from comments between -100 and 200 comments in steps of 10 score
+$sql = "SELECT AVG(score), avg(num_replies) from comments where score BETWEEN -100 and 200 GROUP BY score/10";
+
+
+//attention span of users reading comments, higher avg score is avg(score)
+$sql = "SELECT AVG(score), avg(num_replies), depth from comments where score BETWEEN -100 and 200 GROUP BY depth ORDER BY `AVG(score)` DESC";
+$sql = "SELECT AVG(score), avg(num_replies), depth from comments GROUP BY depth ORDER BY `AVG(score)`  DESC";
