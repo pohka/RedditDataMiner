@@ -1,3 +1,45 @@
+                      SQL
+----------------------------------------------------------
+//--------------avg karama score for flairs-----------------
+SELECT AVG(comments.score) as avg_score, author_flairs.name, COUNT(comments.author_flair) as num_users FROM comments JOIN author_flairs on author_flairs.flairs_class = comments.author_flair group by author_flair ORDER BY AVG(comments.score) DESC
+
+//------------num users on each flair-----------------
+SELECT DISTINCT comments.author, author_flairs.name, COUNT(comments.author_flair) as num_user from comments JOIN author_flairs on comments.author_flair = author_flairs.flairs_class GROUP BY author_flair ORDER BY `num_user` DESC
+
+
+//------------flair status-----------------
+SELECT t1.name 'User Flair', t1.avg_score as 'AVG Karma', t2.num_user as 'Num Users'
+FROM(
+    SELECT AVG(comments.score) as avg_score, author_flairs.name as name, COUNT(comments.author_flair) as num_users 
+    FROM comments JOIN author_flairs ON author_flairs.flairs_class = comments.author_flair 
+    GROUP BY author_flair
+    ) t1
+LEFT JOIN
+	(
+    SELECT DISTINCT comments.author, author_flairs.name as name, COUNT(comments.author_flair) as num_user 
+	from comments JOIN author_flairs ON comments.author_flair = author_flairs.flairs_class 
+	GROUP BY author_flair
+    ) t2
+ON t1.name = t2.name  
+ORDER BY `AVG Karma`  DESC
+
+//-----------toxic flair users-----------------
+SELECT * FROM `comments` join author_flairs on comments.author_flair = author_flairs.flairs_class WHERE author_flairs.name = 'Undying' ORDER BY comments.score ASC
+
+//------------users comment karama-----------------
+SELECT author as user, SUM(score) as score, COUNT(author) as num_comments, Max(score) as best_comment, AVG(score) as avg_score
+FROM comments
+GROUP BY user  
+ORDER BY `score`  DESC
+
+//------------Number of mentions of a hero----------
+SELECT COUNT(comment_id) as count FROM `comments`
+WHERE UPPER(text) LIKE UPPER(CONCAT('%','techies','%'))
+
+
+
+                     PHP
+----------------------------------------------------
 //total karma for comments
 $sql = "SELECT SUM(score) from comments";
 
