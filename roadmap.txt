@@ -1,5 +1,7 @@
--classification of data
--determine best place to comment
--determine structure of sentence
--determine best words to use
--refine sentances with supervised learning
+Roadmap
+--
+* classification of data
+* determine best place to comment
+* determine structure of sentence
+* determine best words to use
+* refine sentances with supervised learning
